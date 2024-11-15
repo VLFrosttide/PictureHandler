@@ -5,6 +5,7 @@ let UploadButton = document.getElementById("UploadButton");
 let MyImage = document.getElementById("MyImage");
 let MyCanvas = document.getElementById("MyCanvas");
 let GraveInput = document.getElementById("GraveInput");
+let ElementArray = [];
 MyCanvas.width = 800;
 MyCanvas.height = 500;
 let ctx = MyCanvas.getContext("2d");
@@ -47,6 +48,30 @@ function DrawImge(NewImage, Width, AspectRatio) {
     ctx.drawImage(img, 100, 100, Width, Width / AspectRatio);
   };
 }
+
+/**
+ *@param {string} Name
+ * @param {string} Type
+ * @param {*} Content
+ * @param {number} X
+ * @param {number} Y
+ * @param {number} Width
+ * @param {number} Height
+ */
+function CreateCanvasElement(Name, Type, Content, X, Y, Width, Height) {
+  let NewEl = {
+    Name: Name,
+    Type: Type,
+    Content: Content,
+    X: X,
+    Y: Y,
+    Width: Width,
+    Height: Height,
+  };
+  console.log(NewEl);
+  ElementArray.push(NewEl);
+  console.log(ElementArray);
+}
 //#endregion
 GraveInput.addEventListener("input", function (e) {
   console.log(GraveInput.value);
@@ -87,14 +112,32 @@ UploadButton.addEventListener("change", function (e) {
   if (ImageFile) {
     const reader = new FileReader();
     reader.onload = function (e) {
-      MyImage.src = e.target.result;
+      // MyImage.src = e.target.result;
       let LoadImage = new Image();
+
+      LoadImage.onload = function () {
+        let ImageName = ImageFile.name.split(".").slice(0, -1).join(".");
+        console.log("ImageName: ", ImageName);
+        console.log(typeof LoadImage.width);
+        console.log(Number(LoadImage.width));
+        console.log(typeof LoadImage.height);
+        console.log(Number(LoadImage.height));
+        console.log(Number(LoadImage.width) / Number(LoadImage.height));
+
+        NewImgAspectRatio = Number(LoadImage.width) / Number(LoadImage.height);
+        console.log("asp ratio: ", typeof NewImgAspectRatio);
+        CreateCanvasElement(
+          ImageName,
+          "Image",
+          e.target.result,
+          MyCanvas.width / 2,
+          MyCanvas.height / 2,
+          LoadImage.width,
+          LoadImage.height
+        );
+        DrawImge(e.target.result, 200, NewImgAspectRatio);
+      };
       LoadImage.src = e.target.result;
-      NewImgAspectRatio = Number(LoadImage.width) / Number(LoadImage.height);
-      console.log("asp ratio: ", NewImgAspectRatio);
-      console.log("Type: ", typeof e.target.result);
-      // DrawImge(e.target.result);
-      DrawImge(e.target.result, 200, NewImgAspectRatio);
       // MyImage.style.display = "block";
     };
     reader.readAsDataURL(ImageFile);
